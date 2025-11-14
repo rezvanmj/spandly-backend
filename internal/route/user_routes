@@ -1,0 +1,11 @@
+package route
+
+import (
+	"spandly-backend/internal/api"
+
+	"github.com/gin-gonic/gin"
+)
+
+func RegisterUserRoutes(r *gin.Engine) {
+	r.POST("/user", api.CreateUser)
+}

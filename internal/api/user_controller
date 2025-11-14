@@ -1,0 +1,37 @@
+package api
+
+import (
+	"net/http"
+
+	"spandly-backend/internal/db"
+	"spandly-backend/models"
+
+	"github.com/gin-gonic/gin"
+)
+
+func CreateUser(c *gin.Context) {
+	var input models.User
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// check if email exists
+	var existing models.User
+	if err := db.DB.Where("email = ?", input.Email).First(&existing).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "email already exists"})
+		return
+	}
+
+	// create
+	if err := db.DB.Create(&input).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "user created",
+		"user":    input,
+	})
+}
