@@ -1,16 +1,30 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"spandly-backend/internal/db"
+	"spandly-backend/internal/route"
+	"spandly-backend/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	// Connect DB
+	db.Connect()
+
+	// Run migrations
+	err := db.DB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatal("Failed to migrate:", err)
+	}
+
+	// Gin setup
 	r := gin.Default()
-	r.GET("/hello", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "Hi Rezvan!"})
-	})
+
+	// Register routes
+	route.RegisterUserRoutes(r)
+
+	// Start server
 	r.Run(":8080")
-	fmt.Print("Hello Go !")
 }
